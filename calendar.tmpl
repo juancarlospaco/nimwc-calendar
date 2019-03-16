@@ -1,0 +1,589 @@
+#? stdtmpl | standard
+#
+#import times
+#
+#proc genCalendar*(year, mont, dayz, daysInMo: int, dayOneIs: string, hasEventList: seq[string], isAdmin: bool): string =
+# result = ""
+<br>
+<style>table#calendar td:hover{filter:hue-rotate(180deg)}</style>
+<div class="has-background-white has-text-black is-fullwidth" style="width:100%">
+<center class="is-fullwidth has-background-primary">
+  <a class="button is-link is-pulled-left is-round" href="/calendar/${ year - 1 }-${ align($mont, 2, '0') }-01" title="${ year - 1 }-$mont-01">
+    <h1> &Longleftarrow; </h1>
+  </a>
+  <a class="button is-info is-pulled-left is-round" href="/calendar/$year-${ align($(mont - 1), 2, '0') }-01" title="$year-${ mont - 1 }-01">
+    <h1> &blacktriangleleft; </h1>
+  </a>
+  <h1 class="has-text-centered has-text-weight-bold is-size-1" style="display:inline" title="$dayz / $mont / $year"> $dayz / $mont / $year </h1>
+  <a class="button is-link is-pulled-right is-round" href="/calendar/${ year + 1 }-${ align($mont, 2, '0') }-01" title="${ year + 1 }-$mont-01">
+    <h1> &Longrightarrow; </h1>
+  </a>
+  <a class="button is-info is-pulled-right is-round" href="/calendar/$year-${ align($(mont + 1), 2, '0') }-01" title="$year-${ mont + 1 }-01">
+    <h1> &blacktriangleright; </h1>
+  </a>
+  <input type="date" name="jump" title="Time Travel" value="" min="2019-01-01" onblur="window.location='/calendar/'+this.value" style="display:block">
+</center>
+<table id="calendar" border=1 class="table is-bordered is-striped is-hoverable is-fullwidth has-background-white has-text-black" style="width:100%;height:-webkit-fill-available">
+<thead>
+  <tr>
+    <th> Sunday    | Domingo   </th>
+    <th> Monday    | Lunes     </th>
+    <th> Tuesday   | Martes    </th>
+    <th> Wednesday | Miercoles </th>
+    <th> Thursday  | Jueves    </th>
+    <th> Friday    | Viernes   </th>
+    <th> Saturday  | Sabado    </th>
+  </tr>
+</thead>
+<tfoot>
+  <tr>
+    <th> Sunday    | Domingo   </th>
+    <th> Monday    | Lunes     </th>
+    <th> Tuesday   | Martes    </th>
+    <th> Wednesday | Miercoles </th>
+    <th> Thursday  | Jueves    </th>
+    <th> Friday    | Viernes   </th>
+    <th> Saturday  | Sabado    </th>
+  </tr>
+</tfoot>
+<tbody class="is-family-monospace">
+<tr>
+#let yearmont = $year & "-" & $mont & "-"
+#var firstDayIs = parse(yearmont & "1", "yyyy-M-d").weekday
+#var days2Skip: int
+#case firstDayIs
+#of dSun: days2Skip = 1
+#of dMon: days2Skip = 0
+#of dTue: days2Skip = -1
+#of dWed: days2Skip = -2
+#of dThu: days2Skip = -3
+#of dFri: days2Skip = -4
+#else:    days2Skip = -5
+#end case
+#var countero = days2Skip
+#var countero2 = 0
+#var weekLimit = 7
+#for nWeek in days2Skip..daysInMo:
+#  if nWeek < 1:
+#    dec weekLimit
+     <td> 👑 </td>
+#  elif nWeek in [1, 2, 3, 4, 5, 6, 7]:
+#    inc countero2
+#    if countero2 > weekLimit:
+#      weekLimit = 7
+#      countero = 1
+#    end if
+     <td>
+       <h1 class="has-text-weight-bold is-size-1">$nWeek</h1>
+       <br>
+#    if hasEventList[nWeek - 1].len > 1:
+       <a class="button is-fullwidth" href="/calendar/${ year }-${ align($mont, 2, '0') }-${ align($nWeek, 2, '0') }"> ${ hasEventList[nWeek - 1] } </a></td>
+#    elif isAdmin:
+       <button class="button is-fullwidth" onClick="document.querySelector('#modal$nWeek').classList.toggle('is-active')"> + </button>
+     </td>
+
+    <div class="modal" id="modal$nWeek">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title"> $nWeek / $mont / $year </p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <form method="POST" action="/calendar/save">
+            <input name="year" type="hidden" required value="$year">
+            <input name="mont" type="hidden" required value="$mont">
+            <input name="dayz" type="hidden" required value="$dayz">
+            <div class="field">
+              <label class="label"> Title | Titulo </label>
+              <div class="control">
+                <input name="title" class="input" type="text" placeholder="Title" required minlength="2" maxlength="50" title="Short Title"  dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Description | Descripcion </label>
+              <div class="control">
+                <textarea name="description" class="textarea" placeholder="ResTructuredText / Basic MarkDown / TXT" title="ResTructuredText, 300 Chars" required minlength="9" maxlength="300" dir="auto"></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Email </label>
+              <div class="control">
+                <input name="email" class="input" type="text" placeholder="You@mail.com" required minlength="4" maxlength="254" dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Web </label>
+              <div class="control">
+                <input name="web" class="input" type="url" placeholder="https://YourWeb.com" required title="HTTPS preferred" minlength="4" maxlength="300" dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '')">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Where | Lugar </label>
+              <div class="control">
+                <input name="location" class="input" type="text" placeholder="Where" required minlength="9" maxlength="300" dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Max People | Maximo de Personas </label>
+              <div class="control">
+                <input name="maxPeople" class="input" type="number" placeholder="Max People" required min="2" max="9999" step="2" value="2" dir="auto">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Color </label>
+              <div class="control">
+                <input name="color" class="input" type="color" required value="#ffffff" dir="auto" onblur="this.title=this.value">
+              </div>
+            </div>
+            <br>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isRemote"> Allows Remote ? <br> Permite Remoto ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isFree"> Is Free (Free or payments, tickets, etc) ? <br> Es Gratis ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isMinorsOk"> Allows Minor Child (<18) ? <br> Permite Menores de 18 ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasA11y"> Has Accessibility (Wheelchair, ramps, etc) ? <br> Tiene Accesibilidad (Silla de ruedas, rampas, etc) ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasBikePark"> Has Bike Parking ? <br> Tiene estacionamiento de Bici ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasCarPark"> Has Car Parking ? <br> Tiene estacionamiento de Auto ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasFood"> Has Food purchasing ? <br> Tiene para comprar Comida ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasDrink"> Has Drink purchasing (Water, beer, etc) ? <br> Tiene para comprar Bebidas ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasBTC"> Accepts Bitcoin and CryptoCurrencies ? <br> Acepta Bitcoin ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="needNotebook"> Requires personal Notebook computer ? <br> Requiere Notebook personal ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isWeatherOk" checked > Is Weather agnostic (Postponed by storm, snow, etc) ? <br> Es agnostico del Clima (suspende por lluvia, etc) ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasPower" checked > Has Power (Power outlets, to charge smartphone, etc) ? <br> Tiene enchufes (cargar movil, etc) ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasWifi" checked > Has Wifi with Internet (Wifi, RJ45, etc) ? <br> Tiene Internet por Wifi ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasAC" checked > Has Air Conditioning ? <br> Tiene Aire Acondicionado ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasBathroom" checked > Has Bathrooms ? <br> Tiene Banio ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasSit" checked > Has a place to sit ? <br> Tiene lugar dones sentarse ?
+                </label>
+              </div>
+            </div>
+            <hr>
+            <input type="submit" class="button is-success is-fullwidth" title="Save">
+          </form>
+        </section>
+      </div>
+      <button class="modal-close is-large has-background-danger is-warning" aria-label="close" title="Close" onClick="document.querySelector('#modal$nWeek').classList.toggle('is-active')"></button>
+    </div>
+#   end if
+#  elif weekLimit == 7 and nWeek > 7 and nWeek <= daysInMo:
+     <td>
+       <h1 class="has-text-weight-bold is-size-1">$nWeek</h1>
+       <br>
+#    if hasEventList[nWeek - 1].len > 1:
+       <a class="button is-fullwidth" href="/calendar/${ year }-${ align($mont, 2, '0') }-${ align($nWeek, 2, '0') }"> ${ hasEventList[nWeek - 1] } </a></td>
+#    elif isAdmin:
+       <button class="button is-fullwidth" onClick="document.querySelector('#modal$nWeek').classList.toggle('is-active')"> + </button>
+     </td>
+
+    <div class="modal" id="modal$nWeek">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title"> $nWeek / $mont / $year </p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <form method="POST" action="/calendar/save">
+            <input name="year" type="hidden" required value="$year">
+            <input name="mont" type="hidden" required value="$mont">
+            <input name="dayz" type="hidden" required value="$dayz">
+            <div class="field">
+              <label class="label"> Title | Titulo </label>
+              <div class="control">
+                <input name="title" class="input" type="text" placeholder="Title" required minlength="2" maxlength="50" title="Short Title"  dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Description | Descripcion </label>
+              <div class="control">
+                <textarea name="description" class="textarea" placeholder="ResTructuredText / Basic MarkDown / TXT" title="ResTructuredText, 300 Chars" required minlength="9" maxlength="300" dir="auto"></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Email </label>
+              <div class="control">
+                <input name="email" class="input" type="text" placeholder="You@mail.com" required minlength="4" maxlength="254" dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Web </label>
+              <div class="control">
+                <input name="web" class="input" type="url" placeholder="https://YourWeb.com" required title="HTTPS preferred" minlength="4" maxlength="300" dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '')">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Where | Lugar </label>
+              <div class="control">
+                <input name="location" class="input" type="text" placeholder="Where" required minlength="9" maxlength="300" dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Max People | Maximo de Personas </label>
+              <div class="control">
+                <input name="maxPeople" class="input" type="number" placeholder="Max People" required min="2" max="9999" step="2" value="2" dir="auto">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label"> Color </label>
+              <div class="control">
+                <input name="color" class="input" type="color" required value="#ffffff" dir="auto" onblur="this.title=this.value">
+              </div>
+            </div>
+            <br>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isRemote"> Allows Remote ? <br> Permite Remoto ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isFree"> Is Free (Free or payments, tickets, etc) ? <br> Es Gratis ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isMinorsOk"> Allows Minor Child (<18) ? <br> Permite Menores de 18 ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasA11y"> Has Accessibility (Wheelchair, ramps, etc) ? <br> Tiene Accesibilidad (Silla de ruedas, rampas, etc) ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasBikePark"> Has Bike Parking ? <br> Tiene estacionamiento de Bici ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasCarPark"> Has Car Parking ? <br> Tiene estacionamiento de Auto ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasFood"> Has Food purchasing ? <br> Tiene para comprar Comida ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasDrink"> Has Drink purchasing (Water, beer, etc) ? <br> Tiene para comprar Bebidas ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasBTC"> Accepts Bitcoin and CryptoCurrencies ? <br> Acepta Bitcoin ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="needNotebook"> Requires personal Notebook computer ? <br> Requiere Notebook personal ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="isWeatherOk" checked > Is Weather agnostic (Postponed by storm, snow, etc) ? <br> Es agnostico del Clima (suspende por lluvia, etc) ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasPower" checked > Has Power (Power outlets, to charge smartphone, etc) ? <br> Tiene enchufes (cargar movil, etc) ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasWifi" checked > Has Wifi with Internet (Wifi, RJ45, etc) ? <br> Tiene Internet por Wifi ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasAC" checked > Has Air Conditioning ? <br> Tiene Aire Acondicionado ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasBathroom" checked > Has Bathrooms ? <br> Tiene Banio ?
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="hasSit" checked > Has a place to sit ? <br> Tiene lugar dones sentarse ?
+                </label>
+              </div>
+            </div>
+            <hr>
+            <input type="submit" class="button is-success is-fullwidth" title="Save">
+          </form>
+        </section>
+      </div>
+      <button class="modal-close is-large has-background-danger is-warning" aria-label="close" title="Close" onClick="document.querySelector('#modal$nWeek').classList.toggle('is-active')"></button>
+    </div>
+#   end if
+#  end if
+#  inc countero
+#  if nWeek >= weekLimit and countero > 7:
+#    countero = 1
+     </tr><tr>
+#  end if
+#  if weekLimit != 7 and nWeek > 0 and nWeek mod weekLimit == 0:
+     </tr><tr>
+#  end if
+#end for
+</tbody>
+</table>
+</div>
+#end proc
+#
+#
+#
+#
+#
+#proc genEvent*(evento: Row, descrRST, libravatarUrl: string, isAdmin: bool): string =
+# result = ""
+<br><div class="has-background-white has-text-black is-fullwidth is-rounded" style="padding:9px;border:1px solid grey;border-radius:4px">
+  <h1 class="has-text-centered has-text-weight-bold is-size-1 is-capitalized" style="background-color:${evento[3]}" title="${ format(evento[8].parseInt.fromUnix, "d / M / yyyy") }"> ${evento[1]} </h1>
+  <p>
+    $descrRST
+  </p>
+  <center>
+    <div class="image is-128x128">
+      <img class="image is-128x128 is-rounded libravatar" src="$libravatarUrl" style="width:128px;height:128px;text-align:center">
+    </div>
+  </center>
+  <hr>
+  <h3 class="has-text-centered">When & Where</h3>
+    <h1 class="has-text-centered has-text-weight-bold is-size-3"> ${ format(evento[8].parseInt.fromUnix, "d / M / yyyy") } </h1>
+    <h1 class="has-text-centered has-text-weight-bold is-capitalized is-size-3"> ${evento[6]} </h1>
+  <hr>
+  <h3 class="has-text-centered">Info</h3>
+  <div class="columns">
+    <div class="column">
+      <ul>
+        <li> <b>Email:</b>     <a href="mailto:${evento[4]}">          ${evento[4]} </a> </li>
+        <li> <b>Web:</b>       <a href="${evento[5]}" target="_blank"> ${evento[5]} </a> </li>
+        <li> <b>Capacity:</b>  <code>${evento[7]}</code> People Max </li>
+        <li> <b>Color Code:</b> <i style="background-color:${evento[3]}" title="Color to Visually distinguish this Event"> &nbsp; ${evento[3] } &nbsp; </i> </li>
+      </ul>
+    </div>
+    <div class="column">
+      <ul>
+        <li> <b>Remaining:</b> <code> ${ days(evento[8].parseInt.fromUnix - now().toTime) } </code> Days </li>
+        <li> <b>Created:</b>   ${ evento[9].parseInt.fromUnix } </li>
+        <li> <b>Today:</b>     ${ getDateStr() }  </li>
+        <li> <b>Unique ID:</b> <code>${evento[0]}</code> </li>
+      </ul>
+    </div>
+  </div>
+  <hr>
+  <h3 class="has-text-centered">Extras</h3>
+  <div class="tags" style="background-color:${evento[3]}"><br>
+
+# if evento[10] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event allows Remote participation, at least partially (Streaming, VideoConference, etc)"> &checkmark; Remote Ok </span>
+# end if
+
+# if evento[11] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event is Free"> &checkmark; Free $$0 </span>
+# end if
+
+# if evento[12] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event allows minor children (<18)"> &checkmark; Children Ok </span>
+# end if
+
+# if evento[13] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Accessibility (Wheelchair, ramps, etc)"> &checkmark; Accessibility Ok </span>
+# end if
+
+# if evento[14] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Bike parking spot"> &checkmark; Bike Parking </span>
+# end if
+
+# if evento[15] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Car parking spot"> &checkmark; Car Parking </span>
+# end if
+
+# if evento[16] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Food to sell"> &checkmark; Food </span>
+# end if
+
+# if evento[17] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Drinks to sell"> &checkmark; Drinks </span>
+# end if
+
+# if evento[18] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event accepts Bitcoin and CryptoCurrencies"> &checkmark; Bitcoin Ok </span>
+# end if
+
+# if evento[19] != "0":
+    <span class="tag is-capitalized is-medium is-warning has-text-weight-bold" title="Event requires a personal Notebook computer (You must have laptop)"> 💻 Requires Notebook </span>
+# end if
+
+# if evento[20] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event is Not postponed by bad weather (Postponed by storm, snow, etc)"> &checkmark; Weather Agnostic </span>
+# end if
+
+# if evento[21] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Power outlets (Power outlets, to charge smartphone, etc)"> &checkmark; Power </span>
+# end if
+
+# if evento[22] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Wifi with Internet (Wifi, RJ45, etc)"> &checkmark; Wifi </span>
+# end if
+
+# if evento[23] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Air Conditioning"> &checkmark; Air Conditioner </span>
+# end if
+
+# if evento[24] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has Bathrooms"> &checkmark; Bathrooms </span>
+# end if
+
+# if evento[25] != "0":
+    <span class="tag is-rounded is-capitalized is-medium is-success" title="Event has a place to sit (Chairs, Sofa, Couch, etc)"> &checkmark; Sit & Relax </span>
+# end if
+
+  <br>
+  </div>
+  <details style="opacity:.5">
+    <summary> Export </summary>
+    <input class="input is-small" placeholder="CSV Export" title="CSV Export" readonly dir="auto" value='${ evento }'>
+  </details>
+
+# if isAdmin:
+  <hr>
+  <details>
+    <summary class="label"> Admin </summary>
+    <p>Delete Event by ID.</p>
+    <form method="post" action="/calendar/reset">
+      <input type="tel" id="eventid" name="eventid" title="Event Unique ID" class="form-control input has-text-centered has-text-weight-bold is-family-monospace" placeholder="Event Unique ID" min="1" step="1" maxlength="9" pattern="\d*" autocomplete="off" dir="auto" style="width:4em" required value="${evento[0]}"/>
+      <br><br>
+      <input type="submit" class="button is-danger is-small"/>
+    </form>
+  </details>
+# end if
+
+</div>
+#end proc
