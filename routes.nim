@@ -30,12 +30,12 @@
       libravatarUrl = getLibravatarUrl(thisEvent[4])
       isAdmin = c.rank in [Admin, Moderator]
     if thisEvent[0] != "":
-      resp genMain(c, genEvent(thisEvent, descrRST, libravatarUrl, isAdmin)) & bulma(c)
+      resp genMain(c, genEvent(thisEvent, descrRST, libravatarUrl, isAdmin))  # & bulma(c)
     else:
       var hasEventList: seq[string]
       for adate in 1..daysInMo:
         hasEventList.add getRow(db, cueri, parse($year & "-" & $mont & "-" & $adate, "yyyy-M-d").utc.toTime.toUnix)[1]
-      resp genMain(c, genCalendar(year, mont, dayz, daysInMo, $dayOneIs, hasEventList, isAdmin)) & bulma(c)
+      resp genMain(c, genCalendar(year, mont, dayz, daysInMo, $dayOneIs, hasEventList, isAdmin))  # & bulma(c)
 
   post "/calendar/save":
     createTFD()
@@ -78,10 +78,10 @@
       @"hasBathroom".len,
       @"hasSit".len
     )
-    redirect request.path
+    redirect "/"
 
   post "/calendar/reset":
     createTFD()
     restrictTestuser(HttpGet)
     restrictAccessTo(c, [Admin, Moderator])
-    resp "<h1>" & $tryExec(db, sql"DELETE FROM calendar WHERE id = ?", @"eventid")  # UX IQ200 ;P
+    resp "<meta http-equiv='refresh' content='3;url=/'/><h1>" & $tryExec(db, sql"DELETE FROM calendar WHERE id = ?", @"eventid")  # UX IQ200 ;P

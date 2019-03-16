@@ -23,7 +23,7 @@ const
   calendarTable = sql("""
     create table if not exists calendar(
       id           $3            primary key,
-      title        varchar(50)   not null,
+      title        varchar(25)   not null,
       description  varchar(300)  not null,
       color        varchar(9)    not null,
       email        varchar(254)  not null,

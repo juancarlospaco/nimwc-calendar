@@ -77,7 +77,7 @@
        <h1 class="has-text-weight-bold is-size-1">$nWeek</h1>
        <br>
 #    if hasEventList[nWeek - 1].len > 1:
-       <a class="button is-fullwidth" href="/calendar/${ year }-${ align($mont, 2, '0') }-${ align($nWeek, 2, '0') }"> ${ hasEventList[nWeek - 1] } </a></td>
+       <a class="button is-fullwidth is-capitalized is-size-7 has-text-weight-light" href="/calendar/${ year }-${ align($mont, 2, '0') }-${ align($nWeek, 2, '0') }"> ${ hasEventList[nWeek - 1] } </a></td>
 #    elif isAdmin:
        <button class="button is-fullwidth" onClick="document.querySelector('#modal$nWeek').classList.toggle('is-active')"> + </button>
      </td>
@@ -97,7 +97,7 @@
             <div class="field">
               <label class="label"> Title | Titulo </label>
               <div class="control">
-                <input name="title" class="input" type="text" placeholder="Title" required minlength="2" maxlength="50" title="Short Title"  dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+                <input name="title" class="input" type="text" placeholder="Title" required minlength="2" maxlength="25" title="Short Title"  dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
               </div>
             </div>
             <div class="field">
@@ -262,7 +262,7 @@
        <h1 class="has-text-weight-bold is-size-1">$nWeek</h1>
        <br>
 #    if hasEventList[nWeek - 1].len > 1:
-       <a class="button is-fullwidth" href="/calendar/${ year }-${ align($mont, 2, '0') }-${ align($nWeek, 2, '0') }"> ${ hasEventList[nWeek - 1] } </a></td>
+       <a class="button is-fullwidth is-capitalized is-size-7 has-text-weight-light" href="/calendar/${ year }-${ align($mont, 2, '0') }-${ align($nWeek, 2, '0') }"> ${ hasEventList[nWeek - 1] } </a></td>
 #    elif isAdmin:
        <button class="button is-fullwidth" onClick="document.querySelector('#modal$nWeek').classList.toggle('is-active')"> + </button>
      </td>
@@ -282,7 +282,7 @@
             <div class="field">
               <label class="label"> Title | Titulo </label>
               <div class="control">
-                <input name="title" class="input" type="text" placeholder="Title" required minlength="2" maxlength="50" title="Short Title"  dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
+                <input name="title" class="input" type="text" placeholder="Title" required minlength="2" maxlength="25" title="Short Title"  dir="auto" onblur="this.value=this.value.replace(/\s\s+/g, ' ').replace(/^\s+|\s+$$/g, '').toLowerCase()">
               </div>
             </div>
             <div class="field">
