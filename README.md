@@ -1,6 +1,6 @@
 # nimwc-calendar
 
-- Calendar for Events for NimWC, designed for human social interaction events (Hackathons, Meetups, Conferences, etc).
+- Calendar for Events for [NimWC](https://nimwc.org/login), designed for human social interaction events (Hackathons, Meetups, Conferences, etc).
 
 
 ![Calendar](calendar0.jpg)
