@@ -22,3 +22,5 @@ Is designed on a spoken language agnostic way, but English/Spanish are supported
 Material Design and Dark theme is supported.
 
 Has a Date Picker to jump from date to date.
+
+Basic Event CSV export.
