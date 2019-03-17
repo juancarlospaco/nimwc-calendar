@@ -24,3 +24,5 @@ Material Design and Dark theme is supported.
 Has a Date Picker to jump from date to date.
 
 Basic Event CSV export.
+
+Full page full width, but works ok on mobile.
