@@ -18,3 +18,5 @@ Everyone can see the Calendar and Events. Admin can Delete Events.
 Click on "+" button to add an Event. Title of Event with Link to Event replaces the "+" if theres an Even that day.
 
 Is designed on a spoken language agnostic way, but English/Spanish are supported.
+
+Material Design and Dark theme is supported.
