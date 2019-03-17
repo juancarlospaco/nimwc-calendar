@@ -1,6 +1,6 @@
 # nimwc-calendar
 
-- Calendar for NimWC.
+- Calendar for Events for NimWC, designed for human social interaction events (Hackathons, Meetups, Conferences, etc).
 
 
 ![](calendar0.jpg)
